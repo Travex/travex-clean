@@ -343,6 +343,10 @@ if (updatedRows && updatedRows.length > 0) {
   return res.status(200).send("OK");
 });
 
+app.get("/scan/check-in", (req, res) => {
+  res.json({ ok: true, route: "scan check-in GET visible" });
+});
+
 app.post("/scan/check-in", async (req, res) => {
   try {
     const { ticket_id } = req.body || {};
