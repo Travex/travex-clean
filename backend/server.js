@@ -399,11 +399,13 @@ app.post("/scan/check-in", async (req, res) => {
       .insert({ id: ticket_id });
 
     if (insertError) {
-      return res.status(500).json({
-        ok: false,
-        error: "Failed to verify ticket",
-      });
-    }
+  console.log("VERIFY INSERT ERROR:", insertError);
+  return res.status(500).json({
+    ok: false,
+    error: "Failed to verify ticket",
+    details: insertError.message,
+  });
+}
 
     return res.json({
       ok: true,
