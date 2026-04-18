@@ -10,6 +10,7 @@ const { createClient } = require("@supabase/supabase-js");
 const QRCode = require("qrcode");
 const crypto = require("crypto");
 const fetch = require("node-fetch");
+const cors = require("cors");
 
 // Load .env from project root (../.env)
 require("dotenv").config({
@@ -26,6 +27,10 @@ if (!process.env.SUPABASE_SERVICE_ROLE_KEY)
   throw new Error("Missing SUPABASE_SERVICE_ROLE_KEY in .env");
 if (!process.env.CAMPAY_WEBHOOK_KEY)
   throw new Error("Missing CAMPAY_WEBHOOK_KEY in .env");
+if (!process.env.CAMPAY_WEBHOOK_URL)
+  throw new Error("Missing CAMPAY_WEBHOOK_URL in .env");
+if (!process.env.QR_SECRET)
+  throw new Error("Missing QR_SECRET in .env");
 
 // --- Supabase client (server-side) ---
 const supabase = createClient(
@@ -35,6 +40,8 @@ const supabase = createClient(
 console.log("✅ Supabase client created");
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 
 // --- QR generator helper ---
@@ -179,6 +186,7 @@ app.post("/campay/collect", async (req, res) => {
           description: `Travex ticket ${ticket_id}`,
           external_reference: ticket_id,
           operator,
+          webhook_url: process.env.CAMPAY_WEBHOOK_URL,
         }),
       }
     );
