@@ -364,12 +364,14 @@ app.post("/scan/check-in", async (req, res) => {
       .eq("id", ticket_id)
       .single();
 
-    if (fetchError || !ticket) {
-      return res.status(404).json({
-        ok: false,
-        error: "Ticket not found",
-      });
-    }
+   if (fetchError || !ticket) {
+  console.log("SCAN FETCH ERROR:", fetchError);
+  return res.status(404).json({
+    ok: false,
+    error: "Ticket not found",
+    details: fetchError?.message || null,
+  });
+}
 
     if (!ticket.paid) {
       return res.status(400).json({
