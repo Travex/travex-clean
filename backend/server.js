@@ -355,7 +355,7 @@ app.post("/scan/check-in", async (req, res) => {
 
   const { data: ticket, error: fetchError } = await supabase
     .from("tickets")
-    .select("id, paid")
+    .select("id, paid, verified_ticket")
     .eq("id", ticket_id)
     .single();
 
@@ -373,11 +373,53 @@ app.post("/scan/check-in", async (req, res) => {
     });
   }
 
-  return res.json({
-    ok: true,
-    message: "Check-in valid",
-    ticket,
+if (ticket.verified_ticket) {
+  return res.status(400).json({
+    ok: false,
+    error: "Ticket already used",
   });
+}
+
+const { error: updateError } = await supabase
+  .from("tickets")
+  .update({ verified_ticket: true })
+  .eq("id", ticket_id);
+
+if (updateError) {
+  return res.status(500).json({
+    ok: false,
+    error: "Failed to verify ticket",
+  });
+}
+
+const { error: updateError } = await supabase
+  .from("tickets")
+  .update({ verified_ticket: true })
+  .eq("id", ticket_id);
+
+if (updateError) {
+  return res.status(500).json({
+    ok: false,
+    error: "Failed to verify ticket",
+  });
+}
+
+const { error: updateError } = await supabase
+  .from("tickets")
+  .update({ verified_ticket: true })
+  .eq("id", ticket_id);
+
+if (updateError) {
+  return res.status(500).json({
+    ok: false,
+    error: "Failed to verify ticket",
+  });
+}
+
+return res.json({
+  ok: true,
+  message: "Check-in valid",
+  ticket_id,
 });
 
 const PORT = process.env.PORT || 3001;
