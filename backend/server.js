@@ -379,12 +379,20 @@ app.post("/scan/check-in", async (req, res) => {
       });
     }
 
-    // 2. Check if already verified
-    const { data: existing } = await supabase
-      .from("verified_tickets")
-      .select("id")
-      .eq("id", ticket_id)
+    // 2. Check if already scanned
+    const { data: existing, error: existingError } = await supabase
+      .from("scanned_tickets")
+      .select("ticket_id")
+      .eq("ticket_id", ticket_id)
       .maybeSingle();
+
+    if (existingError) {
+      return res.status(500).json({
+        ok: false,
+        error: "Failed to check scanned ticket",
+        details: existingError.message,
+      });
+    }
 
     if (existing) {
       return res.status(400).json({
@@ -393,26 +401,25 @@ app.post("/scan/check-in", async (req, res) => {
       });
     }
 
-    // 3. Mark as used (insert)
+    // 3. Mark as used
     const { error: insertError } = await supabase
-      .from("verified_tickets")
-      .insert({ id: ticket_id });
+      .from("scanned_tickets")
+      .insert({ ticket_id });
 
     if (insertError) {
-  console.log("VERIFY INSERT ERROR:", insertError);
-  return res.status(500).json({
-    ok: false,
-    error: "Failed to verify ticket",
-    details: insertError.message,
-  });
-}
+      console.log("VERIFY INSERT ERROR:", insertError);
+      return res.status(500).json({
+        ok: false,
+        error: "Failed to verify ticket",
+        details: insertError.message,
+      });
+    }
 
     return res.json({
       ok: true,
       message: "Check-in valid",
       ticket_id,
     });
-
   } catch (err) {
     console.error("❌ Scan error:", err);
     return res.status(500).json({
