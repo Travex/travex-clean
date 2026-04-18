@@ -41,7 +41,13 @@ console.log("✅ Supabase client created");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:8081",
+    "http://localhost:19006"
+  ]
+}));
+
 app.use(express.json());
 
 // --- QR generator helper ---
@@ -76,6 +82,11 @@ async function generateTicketQR(ticketId) {
 // Health check
 app.get("/health", (req, res) => {
   res.json({ ok: true, message: "Travex backend running" });
+});
+
+// Root route
+app.get("/", (req, res) => {
+  res.json({ ok: true, service: "Travex backend", status: "live" });
 });
 
 // Supabase ping (quick connectivity test)
