@@ -343,6 +343,43 @@ if (updatedRows && updatedRows.length > 0) {
   return res.status(200).send("OK");
 });
 
+app.post("/scan/check-in", async (req, res) => {
+  const { ticket_id } = req.body || {};
+
+  if (!ticket_id) {
+    return res.status(400).json({
+      ok: false,
+      error: "Missing ticket_id",
+    });
+  }
+
+  const { data: ticket, error: fetchError } = await supabase
+    .from("tickets")
+    .select("id, paid")
+    .eq("id", ticket_id)
+    .single();
+
+  if (fetchError || !ticket) {
+    return res.status(404).json({
+      ok: false,
+      error: "Ticket not found",
+    });
+  }
+
+  if (!ticket.paid) {
+    return res.status(400).json({
+      ok: false,
+      error: "Ticket not paid",
+    });
+  }
+
+  return res.json({
+    ok: true,
+    message: "Check-in valid",
+    ticket,
+  });
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Backend running on http://localhost:${PORT}`);
