@@ -358,20 +358,19 @@ app.post("/scan/check-in", async (req, res) => {
       });
     }
 
+    // 1. Get ticket
     const { data: ticket, error: fetchError } = await supabase
       .from("tickets")
-      .select("id, paid, verified_ticket")
+      .select("id, paid")
       .eq("id", ticket_id)
       .single();
 
-   if (fetchError || !ticket) {
-  console.log("SCAN FETCH ERROR:", fetchError);
-  return res.status(404).json({
-    ok: false,
-    error: "Ticket not found",
-    details: fetchError?.message || null,
-  });
-}
+    if (fetchError || !ticket) {
+      return res.status(404).json({
+        ok: false,
+        error: "Ticket not found",
+      });
+    }
 
     if (!ticket.paid) {
       return res.status(400).json({
@@ -380,19 +379,26 @@ app.post("/scan/check-in", async (req, res) => {
       });
     }
 
-    if (ticket.verified_ticket) {
+    // 2. Check if already verified
+    const { data: existing } = await supabase
+      .from("verified_tickets")
+      .select("id")
+      .eq("id", ticket_id)
+      .maybeSingle();
+
+    if (existing) {
       return res.status(400).json({
         ok: false,
         error: "Ticket already used",
       });
     }
 
-    const { error: updateError } = await supabase
-      .from("tickets")
-      .update({ verified_ticket: true })
-      .eq("id", ticket_id);
+    // 3. Mark as used (insert)
+    const { error: insertError } = await supabase
+      .from("verified_tickets")
+      .insert({ id: ticket_id });
 
-    if (updateError) {
+    if (insertError) {
       return res.status(500).json({
         ok: false,
         error: "Failed to verify ticket",
@@ -404,6 +410,7 @@ app.post("/scan/check-in", async (req, res) => {
       message: "Check-in valid",
       ticket_id,
     });
+
   } catch (err) {
     console.error("❌ Scan error:", err);
     return res.status(500).json({
