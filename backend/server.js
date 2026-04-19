@@ -41,12 +41,7 @@ console.log("✅ Supabase client created");
 
 const app = express();
 
-app.use(cors({
-  origin: [
-    "http://localhost:8081",
-    "http://localhost:19006"
-  ]
-}));
+app.use(cors());
 
 app.use(express.json());
 
