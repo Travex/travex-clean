@@ -138,11 +138,6 @@ export default function PaymentScreen() {
 
     setLoading(true);
 
-    const testRes = await fetch(`${API_BASE_URL}/health`);
-const testJson = await testRes.json();
-Alert.alert('Health test', JSON.stringify(testJson));
-return;
-
     try {
       const res = await fetch(`${API_BASE_URL}/campay/collect`, {
         method: 'POST',

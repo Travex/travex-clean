@@ -9,7 +9,6 @@ const jwt = require("jsonwebtoken");
 const { createClient } = require("@supabase/supabase-js");
 const QRCode = require("qrcode");
 const crypto = require("crypto");
-const fetch = require("node-fetch");
 const cors = require("cors");
 
 // Load .env from project root (../.env)
