@@ -11,7 +11,6 @@ const QRCode = require("qrcode");
 const crypto = require("crypto");
 const fetch = require("node-fetch");
 const cors = require("cors");
-const fetch = require("node-fetch");
 
 // Load .env from project root (../.env)
 require("dotenv").config({
