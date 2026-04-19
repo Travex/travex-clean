@@ -167,6 +167,7 @@ app.get("/tickets/:id/qr", async (req, res) => {
 
 // Start CamPay payment collection
 app.post("/campay/collect", async (req, res) => {
+  console.log("✅ /campay/collect route hit", req.body);
   const { ticket_id, phone_number, operator, amount } = req.body || {};
 
   if (!ticket_id || !phone_number || !operator || !amount) {
